@@ -69,7 +69,7 @@ class TwitterClient(object):
 				elif not self.retweets_only:
 					if parsed_tweets not in tweets:
 						tweets.append(parsed_tweets)
-		return tweets
+			return tweets
 		except tweepy.Tweeperror as e:
 			print("Error : ",+str(e))
 
