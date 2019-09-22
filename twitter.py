@@ -14,7 +14,7 @@ class TwitterClient(object):
 
 		try:
 			self.auth=tweepy.OAuthHandler(consumer_key,consumer_secret)
-			self.auth.setaccess_token(access_token,access_token_secret)
+			self.auth.set_access_token(access_token,access_token_secret)
 			self.query=query
 			self.retweets_only=retweets_only
 			self.with_sentiment=with_sentiment
