@@ -6,7 +6,7 @@ from configobj import ConfigObj
 config=ConfigObj('config.txt')
 
 class TwitterClient(object):
-	def __init__(self,query, retweets_only=False, with_sentiment=false):
+	def __init__(self,query, retweets_only=False, with_sentiment=False):
 		consumer_key=config['CONSUMER_KEY']
 		consumer_secret=config['CONSUMER_SECRET']
 		access_token=config['ACCESS_TOKEN']
