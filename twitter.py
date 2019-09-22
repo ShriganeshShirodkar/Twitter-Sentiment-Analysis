@@ -1,78 +1,83 @@
+import re
 import tweepy
 from textblob import TextBlob
-import re
 from configobj import ConfigObj
 
-config=ConfigObj('config.txt')
+config = ConfigObj('config.ini')
+
 
 class TwitterClient(object):
-	def __init__(self,query, retweets_only=False, with_sentiment=False):
-		consumer_key=config['CONSUMER_KEY']
-		consumer_secret=config['CONSUMER_SECRET']
-		access_token=config['ACCESS_TOKEN']
-		access_token_secret=config['ACCESS_TOKEN_SECRET']
+    """
+    Generic Twitter class for the app
+    """
 
-		try:
-			self.auth=tweepy.OAuthHandler(consumer_key,consumer_secret)
-			self.auth.set_access_token(access_token,access_token_secret)
-			self.query=query
-			self.retweets_only=retweets_only
-			self.with_sentiment=with_sentiment
-			self.api=tweepy.API(self.auth)
-			self.tweet_count_max=100
-		except:
-			print("Error:auth failed")
+    def __init__(self, query, retweets_only=False, with_sentiment=False):
+        # twitter apps keys and tokens
+        consumer_key = config['CONSUMER_KEY']
+        consumer_secret = config['CONSUMER_SECRET']
+        access_token = config['ACCESS_TOKEN']
+        access_token_secret = config['ACCESS_TOKEN_SECRET']
 
-	def set_wuery(self,query=""):
-		self.query=query
+        # Attempt authentication
+        try:
+            self.auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+            self.auth.set_access_token(access_token, access_token_secret)
+            self.query = query
+            self.retweets_only = retweets_only
+            self.with_sentiment = with_sentiment
+            self.api = tweepy.API(self.auth)
+            self.tweet_count_max = 100  # To prevent Rate Limiting
+        except:
+            print("Error: Authentication Failed")
 
-	def set_retweet_checking(self,retweets_only='false'):
-		self.retweets_only=retweets_only
+    def set_query(self, query=''):
+        self.query = query
 
-	def set_with_sentiment(self,with_sentiment='false'):
-		self.with_sentiment=with_sentiment
+    def set_retweet_checking(self, retweets_only='false'):
+        self.retweets_only = retweets_only
 
-	def clean_tweet(self,tweet):
-		return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+    def set_with_sentiment(self, with_sentiment='false'):
+        self.with_sentiment = with_sentiment
 
+    def clean_tweet(self, tweet):
+        return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
-	def get_tweet_sentiment(self,tweet):
-		analysis=TextBlob(self.clean_tweet(tweet))
-		if analysis.sentiment.polarity>0:
-			return 'positive'
-		elif analysis.sentiment.polarity==0:
-			return 'neutral'
-		else:
-			return 'negative'
+    def get_tweet_sentiment(self, tweet):
+        analysis = TextBlob(self.clean_tweet(tweet))
+        if analysis.sentiment.polarity > 0:
+            return 'positive'
+        elif analysis.sentiment.polarity == 0:
+            return 'neutral'
+        else:
+            return 'negative'
 
-	def get_tweets(self):
-		tweets=[]
+    def get_tweets(self):
+        tweets = []
 
-		try:
-			recd_tweets=self.api.search(q=self.query, count=self.tweet_count_max)
-			if not recd_tweets:
-				pass
-			for tweet in recd_tweets:
-				parsed_tweets={}
+        try:
+            recd_tweets = self.api.search(q=self.query,
+                                          count=self.tweet_count_max)
+            if not recd_tweets:
+                pass
+            for tweet in recd_tweets:
+                parsed_tweet = {}
 
-				parsed_tweets['text']=tweet.text
-				parsed_tweets['user']=tweet.user.screen_name
+                parsed_tweet['text'] = tweet.text
+                parsed_tweet['user'] = tweet.user.screen_name
 
-				if self.with_sentiment==1:
-					parsed_tweets['sentiment'] = self.get_tweet_sentiment(tweet.text)
-				else:
-					parsed_tweets['sentiment'] = 'unavailable'
+                if self.with_sentiment == 1:
+                    parsed_tweet['sentiment'] = self.get_tweet_sentiment(tweet.text)
+                else:
+                    parsed_tweet['sentiment'] = 'unavailable'
 
-				if tweet.retweet_count>0 and self.retweets_only ==1:
-					if parsed_tweets not in tweets:
-						tweets.append(parsed_tweets)
-				elif not self.retweets_only:
-					if parsed_tweets not in tweets:
-						tweets.append(parsed_tweets)
-			return tweets
-		except tweepy.Tweeperror as e:
-			print("Error : ",+str(e))
+                if tweet.retweet_count > 0 and self.retweets_only == 1:
+                    if parsed_tweet not in tweets:
+                        tweets.append(parsed_tweet)
+                elif not self.retweets_only:
+                    if parsed_tweet not in tweets:
+                        tweets.append(parsed_tweet)
 
+            return tweets
 
-
-
+        except tweepy.TweepError as e:
+            print("Error : " + str(e))
