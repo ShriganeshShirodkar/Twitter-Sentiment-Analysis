@@ -3,7 +3,7 @@ import tweepy
 from textblob import TextBlob
 from configobj import ConfigObj
 
-config = ConfigObj('config.ini')
+config = ConfigObj('config.txt')
 
 
 class TwitterClient(object):
