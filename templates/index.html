@@ -1,0 +1,263 @@
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+
+<style>
+
+body {
+  font-family: 'lato', sans-serif;
+}
+
+.container {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.responsive-table li {
+  border-radius: 3px;
+  padding: 25px 30px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+.responsive-table .table-header {
+  background-color: #95A5A6;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.responsive-table .table-row {
+  background-color: #ffffff;
+  box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.1);
+}
+.responsive-table .col-1 {
+  flex-basis: 20%;
+}
+.responsive-table .col-2 {
+  flex-basis: 50%;
+}
+.responsive-table .col-3 {
+  flex-basis: 25%;
+}
+@media all and (max-width: 900px) {
+  .responsive-table .table-header {
+    display: none;
+  }
+  .responsive-table li {
+    display: block;
+  }
+  .responsive-table .col {
+    flex-basis: 100%;
+  }
+  .responsive-table .col {
+    display: flex;
+    padding: 10px 0;
+  }
+  .responsive-table .col:before {
+    color: #6C7A89;
+    padding-right: 10px;
+    content: attr(data-label);
+    flex-basis: 50%;
+    text-align: right;
+  }
+}
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.cell {
+    vertical-align: center;
+}
+input[type=text], select {
+  width: 25%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+button[type=submit] {
+  width: 10%;
+  background-color: #1da1f2;
+  color: white;
+  padding-top: 12px;
+  padding-right: 2px;
+  padding-bottom: 12px;
+  padding-left: 2px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+button[type=submit]:hover {
+  background-color: #306EFF;
+}
+
+
+@import url(https://fonts.googleapis.com/css?family=EB+Garamond|Cardo:400italic);
+
+
+.sandbox-correct-pronounciation {
+  padding: 2em 0 2em 0;
+}
+
+.heading-correct-pronounciation {
+
+  margin: auto;
+  text-align: center;
+  position: relative;
+}
+
+
+h1 {
+  color: #2A87C9;
+  font-family: 'Cardo', serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  font-style: italic;
+  letter-spacing: 0.1em;
+  line-height: 2.2em;
+}
+
+em {
+  font-family: 'EB Garamond', serif;
+  font-size: 2em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  font-style:normal;
+  padding-top: 0.01em;
+  
+  
+  &::before, &::after {
+  
+  display: inline-block;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+  opacity: 0.2;
+  margin: 0 0.6em;
+  font-size: 0.3em;
+}
+
+}
+
+
+.bottom {
+  font-size: 1.0em;
+  letter-spacing: 0.07em;
+  font-size: 1em;
+  display: block;
+}
+
+
+
+
+
+</style>
+
+
+</head>
+<form method="post">
+<body bgcolor="#E6E6FA">
+<div class="bg">
+
+<div class="sandbox sandbox-correct-pronounciation">
+  <h1 class="heading heading-correct-pronounciation">
+    <em>Sentiment Analysis</em>
+  </h1>
+</div>
+
+
+<div style="text-align:center">
+    
+    <input type="text" name="thecontent" placeholder="Enter the text you want to analyse">
+  
+    <button type="submit" >Search</button> 
+</div>
+<br>
+
+
+<div class="cell" style="height:400px">
+        <canvas id="myChart" width="600" height="400"></canvas>
+</div>
+
+<script>
+Chart.defaults.global.animation.duration = 2000;
+new Chart(document.getElementById("myChart").getContext("2d"), {
+    type: 'doughnut',
+
+    data: {
+      labels: [{% for item in labels %}
+             "{{item}}",
+            {% endfor %}],
+      datasets: [
+        {
+          label: "Population (millions)",
+          backgroundColor: ["#B666C3","#31CBB7","#F04A45"],
+          data: [{% for item in values %}
+              {{item}},
+            {% endfor %}]
+        }
+      ]
+    },
+    options: {
+      
+      
+      maintainAspectRatio: false,
+      responsive: true,
+
+      title: {
+        display: true,
+        text: 'Analysis on last 50 tweets'
+      }
+    }
+});
+</script>
+
+<br>
+<br>
+<body>
+<!-- partial:index.partial.html -->
+  <div style="text-align:center">
+    <h style="font-size:30px;">Recent Tweets</h>
+  </div>
+  <br>
+<div class="container">
+
+  <ul class="responsive-table">
+    <li class="table-header">
+      <div class="col col-1">Username</div>
+      <div class="col col-2">Tweet</div>
+      <div class="col col-3">predicted Sentiment</div>
+    </li>
+
+
+    {% for item in result %}
+    <li class="table-row">
+      <div class="col col-1">{{item['user']}}</div>
+      <div class="col col-2">{{item['text']}}</div>
+      <div class="col col-3">{{item['sentiment']}}</div>
+      
+    </li>
+    {% endfor %}
+
+  </ul>
+</div>
+<!-- partial -->
+
+  
+</body>
+
+<div style="text-align:center">
+  Made with <span style="color: #e25555;">&#9829;</span> | Shriganesh
+</div>
